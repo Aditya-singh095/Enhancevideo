@@ -52,7 +52,7 @@ import Layout from '../layouts/Layout.astro';
             </div>
 
             <div id="compare-divider" class="absolute top-0 bottom-0 left-1/2 w-1 bg-primary z-30 -translate-x-1/2 cursor-ew-resize flex items-center justify-center pointer-events-none">
-              <div class="bg-primary p-1 rounded-full shadow-[0_0_10px_#ff2d78] pointer-events-auto cursor-ew-resize hover:scale-125 transition-transform">
+              <div class="bg-primary p-1 rounded-full shadow-[0_0_10px_var(--app-primary)] pointer-events-auto cursor-ew-resize hover:scale-125 transition-transform">
                 <span class="material-symbols-outlined text-on-primary text-sm">unfold_more</span>
               </div>
             </div>
@@ -68,6 +68,21 @@ import Layout from '../layouts/Layout.astro';
               <span class="material-symbols-outlined text-xl group-hover/audio:scale-110 transition-transform" id="audio-icon">volume_off</span>
             </button>
             
+          </div>
+          <div class="mt-4 p-3 border border-outline-variant/60 bg-surface-container-low/60 rounded-lg flex flex-col gap-3">
+            <div class="flex items-center gap-3">
+              <button id="play-pause-btn" class="bg-primary text-on-primary px-3 py-2 rounded font-label text-[11px] uppercase tracking-widest min-w-[90px]">
+                Pause
+              </button>
+              <div class="flex-1">
+                <input type="range" id="timeline" min="0" max="100" value="0" step="0.1" class="w-full accent-primary bg-surface-container-highest h-1 rounded-full appearance-none cursor-pointer"/>
+              </div>
+              <span id="time-display" class="font-label text-[10px] uppercase tracking-widest text-on-surface-variant min-w-[90px] text-right">00:00 / 00:00</span>
+            </div>
+            <div class="flex items-center gap-3">
+              <label for="volume" class="font-label text-[10px] uppercase tracking-widest text-on-surface-variant min-w-[56px]">Volume</label>
+              <input type="range" id="volume" min="0" max="1" step="0.01" value="1" class="w-full accent-primary bg-surface-container-highest h-1 rounded-full appearance-none cursor-pointer"/>
+            </div>
           </div>
         </div>
 
@@ -189,6 +204,7 @@ import Layout from '../layouts/Layout.astro';
   let currentVideo: HTMLVideoElement | null = null;
   let renderLoopId: number | null = null;
   let sliderPct = 50;
+  let isSeekingTimeline = false;
   
   const uploadZone = document.getElementById('upload-zone')!;
   const fileInput = document.getElementById('image-upload') as HTMLInputElement;
@@ -203,6 +219,10 @@ import Layout from '../layouts/Layout.astro';
   const compareAfterEl = document.getElementById('compare-after')!;
   const dividerEl = document.getElementById('compare-divider')!;
   const loadingEl = document.getElementById('loading-overlay')!;
+  const playPauseBtn = document.getElementById('play-pause-btn') as HTMLButtonElement;
+  const timelineEl = document.getElementById('timeline') as HTMLInputElement;
+  const timeDisplayEl = document.getElementById('time-display') as HTMLElement;
+  const volumeEl = document.getElementById('volume') as HTMLInputElement;
 
   const sliders = ['brightness', 'contrast', 'temperature', 'saturation', 'sharpness'];
   const sEls: Record<string, HTMLInputElement> = {};
@@ -237,14 +257,40 @@ import Layout from '../layouts/Layout.astro';
   window.addEventListener('mouseup', onDragEnd);
   window.addEventListener('touchend', onDragEnd);
 
-  // Audio Toggle
+  // Audio / Playback Controls
   const audioToggle = document.getElementById('audio-toggle')!;
   const audioIcon = document.getElementById('audio-icon')!;
+
+  function formatTime(seconds: number) {
+    if (!Number.isFinite(seconds) || seconds < 0) return '00:00';
+    const mins = Math.floor(seconds / 60).toString().padStart(2, '0');
+    const secs = Math.floor(seconds % 60).toString().padStart(2, '0');
+    return `${mins}:${secs}`;
+  }
+
+  function updateTimelineUI() {
+    if (!currentVideo) {
+      timelineEl.value = '0';
+      timeDisplayEl.textContent = '00:00 / 00:00';
+      return;
+    }
+    const duration = Number.isFinite(currentVideo.duration) ? currentVideo.duration : 0;
+    if (!isSeekingTimeline && duration > 0) {
+      timelineEl.value = ((currentVideo.currentTime / duration) * 100).toFixed(2);
+    }
+    timeDisplayEl.textContent = `${formatTime(currentVideo.currentTime)} / ${formatTime(duration)}`;
+    playPauseBtn.textContent = currentVideo.paused ? 'Play' : 'Pause';
+  }
   
   audioToggle.addEventListener('click', () => {
     if (!currentVideo) return;
     currentVideo.muted = !currentVideo.muted;
     audioIcon.textContent = currentVideo.muted ? 'volume_off' : 'volume_up';
+    if (!currentVideo.muted && currentVideo.paused) {
+      currentVideo.play().catch(() => {
+        // If play is blocked by browser policy, user can hit Play explicitly.
+      });
+    }
     if (!currentVideo.muted) {
         audioToggle.classList.add('text-primary', 'border-primary');
         audioToggle.classList.remove('text-on-surface');
@@ -270,6 +316,7 @@ import Layout from '../layouts/Layout.astro';
     const url = URL.createObjectURL(file);
     const vid = document.createElement('video');
     vid.muted = true;
+    vid.volume = Number(volumeEl.value);
     vid.loop = true;
     vid.playsInline = true;
     vid.src = url;
@@ -281,7 +328,9 @@ import Layout from '../layouts/Layout.astro';
     
     vid.onloadeddata = () => {
       currentVideo = vid;
-      vid.play();
+      vid.play().catch(() => {
+        // Mobile browsers can block autoplay with sound.
+      });
         
       // Hide hero, show workspace smoothly
       anime({
@@ -313,6 +362,7 @@ import Layout from '../layouts/Layout.astro';
 
       applyFilters();
       setSlider(50);
+      updateTimelineUI();
       
       if (renderLoopId) cancelAnimationFrame(renderLoopId);
       renderLoop();
@@ -327,8 +377,39 @@ import Layout from '../layouts/Layout.astro';
       ctxAfter.clearRect(0, 0, canvasAfter.width, canvasAfter.height);
       ctxAfter.drawImage(currentVideo, 0, 0, canvasAfter.width, canvasAfter.height);
     }
+    updateTimelineUI();
     renderLoopId = requestAnimationFrame(renderLoop);
   }
+
+  playPauseBtn.addEventListener('click', () => {
+    if (!currentVideo) return;
+    if (currentVideo.paused) {
+      currentVideo.play().catch(() => {});
+    } else {
+      currentVideo.pause();
+    }
+    updateTimelineUI();
+  });
+
+  timelineEl.addEventListener('pointerdown', () => { isSeekingTimeline = true; });
+  timelineEl.addEventListener('pointerup', () => { isSeekingTimeline = false; });
+  timelineEl.addEventListener('input', () => {
+    if (!currentVideo || !Number.isFinite(currentVideo.duration)) return;
+    const pct = Number(timelineEl.value) / 100;
+    currentVideo.currentTime = pct * currentVideo.duration;
+    updateTimelineUI();
+  });
+
+  volumeEl.addEventListener('input', () => {
+    if (!currentVideo) return;
+    const volume = Number(volumeEl.value);
+    currentVideo.volume = volume;
+    currentVideo.muted = volume === 0;
+    audioIcon.textContent = currentVideo.muted ? 'volume_off' : 'volume_up';
+    audioToggle.classList.toggle('text-primary', !currentVideo.muted);
+    audioToggle.classList.toggle('border-primary', !currentVideo.muted);
+    audioToggle.classList.toggle('text-on-surface', currentVideo.muted);
+  });
 
   function applyFilters() {
     const b = +sEls.brightness.value, c = +sEls.contrast.value, t = +sEls.temperature.value;
@@ -393,9 +474,97 @@ import Layout from '../layouts/Layout.astro';
   document.getElementById('ai-enhance-btn')!.addEventListener('click', () => runAI({b:108,c:120,s:115,t:0,sh:5}));
   document.getElementById('ai-colorize-btn')!.addEventListener('click', () => runAI({b:102,c:110,s:130,t:25,sh:1}));
 
-  document.getElementById('download-btn')!.addEventListener('click', () => {
+  document.getElementById('download-btn')!.addEventListener('click', async () => {
     if (!currentVideo) return;
-    alert('Processing final video frames... This typically runs on a dedicated GPU backend.');
+
+    const downloadBtn = document.getElementById('download-btn') as HTMLButtonElement;
+    const originalText = downloadBtn.textContent;
+    downloadBtn.disabled = true;
+    downloadBtn.textContent = 'EXPORTING...';
+    loadingEl.classList.remove('hidden');
+    const loadingLabel = loadingEl.querySelector('p');
+    if (loadingLabel) loadingLabel.textContent = 'Rendering export...';
+
+    const exportCanvas = document.createElement('canvas');
+    exportCanvas.width = canvasAfter.width;
+    exportCanvas.height = canvasAfter.height;
+    const exportCtx = exportCanvas.getContext('2d');
+    if (!exportCtx) {
+      loadingEl.classList.add('hidden');
+      downloadBtn.disabled = false;
+      downloadBtn.textContent = originalText;
+      return;
+    }
+
+    let exportRaf: number | null = null;
+    const drawExportFrame = () => {
+      exportCtx.clearRect(0, 0, exportCanvas.width, exportCanvas.height);
+      exportCtx.filter = canvasAfter.style.filter || 'none';
+      exportCtx.drawImage(currentVideo!, 0, 0, exportCanvas.width, exportCanvas.height);
+      exportRaf = requestAnimationFrame(drawExportFrame);
+    };
+
+    const canvasStream = exportCanvas.captureStream(30);
+    const audioTracks = currentVideo.captureStream().getAudioTracks();
+    if (audioTracks[0]) canvasStream.addTrack(audioTracks[0]);
+
+    const mimeType = MediaRecorder.isTypeSupported('video/webm;codecs=vp9,opus')
+      ? 'video/webm;codecs=vp9,opus'
+      : 'video/webm';
+    const recorder = new MediaRecorder(canvasStream, { mimeType });
+    const chunks: Blob[] = [];
+    recorder.ondataavailable = (event) => {
+      if (event.data.size > 0) chunks.push(event.data);
+    };
+
+    const originalLoop = currentVideo.loop;
+    const originalMuted = currentVideo.muted;
+    const originalTime = currentVideo.currentTime;
+    const wasPaused = currentVideo.paused;
+
+    try {
+      currentVideo.loop = false;
+      currentVideo.currentTime = 0;
+      currentVideo.muted = false;
+      drawExportFrame();
+      recorder.start();
+      await currentVideo.play();
+
+      await new Promise<void>((resolve) => {
+        const onEnded = () => {
+          currentVideo?.removeEventListener('ended', onEnded);
+          resolve();
+        };
+        currentVideo?.addEventListener('ended', onEnded);
+      });
+
+      recorder.stop();
+      await new Promise<void>((resolve) => {
+        recorder.onstop = () => resolve();
+      });
+
+      const blob = new Blob(chunks, { type: mimeType });
+      const exportUrl = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = exportUrl;
+      link.download = 'enhancevideo-export.webm';
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      URL.revokeObjectURL(exportUrl);
+    } catch (err) {
+      alert('Export failed on this browser. Try desktop Chrome/Edge for reliable video export.');
+    } finally {
+      if (exportRaf) cancelAnimationFrame(exportRaf);
+      currentVideo.loop = originalLoop;
+      currentVideo.muted = originalMuted;
+      currentVideo.currentTime = Math.min(originalTime, Number.isFinite(currentVideo.duration) ? currentVideo.duration : originalTime);
+      if (!wasPaused) currentVideo.play().catch(() => {});
+      loadingEl.classList.add('hidden');
+      downloadBtn.disabled = false;
+      downloadBtn.textContent = originalText;
+      updateTimelineUI();
+    }
   });
 </script>
 
@@ -408,6 +577,6 @@ import Layout from '../layouts/Layout.astro';
     background: var(--color-primary);
     cursor: ew-resize;
     margin-top: -8px;
-    box-shadow: 0 0 10px rgba(255,45,120,0.5);
+    box-shadow: 0 0 10px var(--neon-glow);
   }
 </style>
