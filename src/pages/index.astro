@@ -225,6 +225,9 @@ import Layout from '../layouts/Layout.astro';
             <button id="download-btn" class="bg-secondary text-on-secondary px-6 py-3 font-display font-bold uppercase tracking-tighter hover:scale-[1.02] active:scale-[0.98] transition-all secondary-glow mt-4">
               AI EXPORT VIDEO
             </button>
+            <button id="delete-btn" class="bg-surface-container border border-red-500/30 text-red-400 px-6 py-3 font-display font-bold uppercase tracking-tighter hover:bg-red-500/10 transition-all mt-2">
+              DELETE & UPLOAD NEW
+            </button>
           </div>
           
         </div>
@@ -827,6 +830,55 @@ import Layout from '../layouts/Layout.astro';
       downloadBtn.textContent = originalText;
       updateTransportUI();
     }
+  });
+
+  document.getElementById('delete-btn')!.addEventListener('click', () => {
+    // Stop any playing video
+    if (currentVideo) {
+      currentVideo.pause();
+      currentVideo.src = '';
+      currentVideo = null;
+    }
+
+    // Cancel any ongoing animation frames
+    if (renderLoopId) {
+      cancelAnimationFrame(renderLoopId);
+      renderLoopId = null;
+    }
+
+    // Reset filters to default
+    sEls.brightness.value = '100';
+    sEls.contrast.value = '100';
+    sEls.temperature.value = '0';
+    sEls.saturation.value = '100';
+    sEls.sharpness.value = '0';
+    applyFilters();
+
+    // Reset slider
+    setSlider(50);
+
+    // Clear file input
+    fileInput.value = '';
+
+    // Animate workspace out
+    anime({
+      targets: workspace,
+      opacity: 0,
+      duration: 500,
+      easing: 'easeInOutQuad',
+      complete: () => {
+        workspace.classList.add('hidden');
+        heroSection.classList.remove('hidden');
+        heroSection.style.opacity = '0';
+        heroSection.style.height = 'auto';
+        anime({
+          targets: heroSection,
+          opacity: 1,
+          duration: 800,
+          easing: 'easeOutExpo'
+        });
+      }
+    });
   });
 </script>
 
