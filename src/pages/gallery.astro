@@ -1,0 +1,84 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="Gallery | ENHANCE.AI">
+  <section class="min-h-screen py-32 px-6">
+    <div class="max-w-7xl mx-auto">
+      
+      <div class="mb-16 border-b border-outline-variant pb-8">
+        <h1 class="text-5xl md:text-7xl font-display font-black tracking-tighter text-on-surface mb-4 uppercase">
+          Neural <span class="text-secondary neon-text-glow">Gallery</span>
+        </h1>
+        <p class="text-on-surface-variant font-label tracking-widest uppercase">
+          Curated examples of frame reconstruction and upscaling.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        
+        <!-- Gallery Item 1 -->
+        <div class="group relative bg-surface-container border border-outline-variant hover:border-primary transition-colors overflow-hidden">
+          <div class="aspect-video bg-surface-container-lowest flex items-center justify-center relative overflow-hidden">
+            <div class="absolute inset-0 bg-primary/20 opacity-0 group-hover:opacity-100 transition-opacity z-10 flex items-center justify-center pointer-events-none">
+              <button class="bg-primary text-on-primary px-4 py-2 font-display font-bold uppercase tracking-tighter text-sm">Playing</button>
+            </div>
+            <video src="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4" loop muted playsinline class="gallery-vid w-full h-full object-cover opacity-50 grayscale group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-500"></video>
+            <div class="absolute top-4 left-4 bg-background/80 px-2 py-1 text-[10px] font-label text-on-surface-variant uppercase tracking-widest z-20 border border-outline-variant">480p -> 4K</div>
+          </div>
+          <div class="p-6">
+            <h3 class="font-display font-bold text-xl uppercase tracking-tighter text-on-surface mb-2">Vintage Restoration</h3>
+            <p class="text-on-surface-variant text-sm font-body">VHS static removal and 8x spatial upscaling using the V-3 model.</p>
+          </div>
+        </div>
+
+        <!-- Gallery Item 2 -->
+        <div class="group relative bg-surface-container border border-outline-variant hover:border-secondary transition-colors overflow-hidden">
+          <div class="aspect-video bg-surface-container-lowest flex items-center justify-center relative overflow-hidden">
+            <div class="absolute inset-0 bg-secondary/20 opacity-0 group-hover:opacity-100 transition-opacity z-10 flex items-center justify-center pointer-events-none">
+              <button class="bg-secondary text-on-secondary px-4 py-2 font-display font-bold uppercase tracking-tighter text-sm">Playing</button>
+            </div>
+            <video src="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4" loop muted playsinline class="gallery-vid w-full h-full object-cover opacity-50 grayscale group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-500"></video>
+            <div class="absolute top-4 left-4 bg-background/80 px-2 py-1 text-[10px] font-label text-on-surface-variant uppercase tracking-widest z-20 border border-outline-variant">1080p -> 8K</div>
+          </div>
+          <div class="p-6">
+            <h3 class="font-display font-bold text-xl uppercase tracking-tighter text-on-surface mb-2">Digital Cleanse</h3>
+            <p class="text-on-surface-variant text-sm font-body">Compression artifact removal for high-motion CGI sequences.</p>
+          </div>
+        </div>
+
+        <!-- Gallery Item 3 -->
+        <div class="group relative bg-surface-container border border-outline-variant hover:border-tertiary transition-colors overflow-hidden">
+          <div class="aspect-video bg-surface-container-lowest flex items-center justify-center relative overflow-hidden">
+            <div class="absolute inset-0 bg-tertiary/20 opacity-0 group-hover:opacity-100 transition-opacity z-10 flex items-center justify-center pointer-events-none">
+              <button class="bg-tertiary text-on-tertiary px-4 py-2 font-display font-bold uppercase tracking-tighter text-sm">Playing</button>
+            </div>
+            <video src="http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4" loop muted playsinline class="gallery-vid w-full h-full object-cover opacity-50 grayscale group-hover:grayscale-0 group-hover:opacity-100 transition-all duration-500"></video>
+            <div class="absolute top-4 left-4 bg-background/80 px-2 py-1 text-[10px] font-label text-on-surface-variant uppercase tracking-widest z-20 border border-outline-variant">720p -> 4K 60FPS</div>
+          </div>
+          <div class="p-6">
+            <h3 class="font-display font-bold text-xl uppercase tracking-tighter text-on-surface mb-2">Frame Interpolation</h3>
+            <p class="text-on-surface-variant text-sm font-body">Generating intermediate frames using optical flow AI mapping.</p>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+  <script is:inline>
+    const videos = document.querySelectorAll('.gallery-vid');
+    videos.forEach(vid => {
+        // Find the parent card to listen for hover
+        const card = vid.closest('.group');
+        if (card) {
+            card.addEventListener('mouseenter', () => {
+                vid.play().catch(e => console.log('Autoplay prevented', e));
+            });
+            card.addEventListener('mouseleave', () => {
+                vid.pause();
+                vid.currentTime = 0; // Reset video to beginning
+            });
+        }
+    });
+  </script>
+</Layout>

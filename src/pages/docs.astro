@@ -1,0 +1,66 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="API Documentation | ENHANCE.AI">
+  <section class="min-h-screen py-32 px-6">
+    <div class="max-w-4xl mx-auto">
+      
+      <div class="mb-16 border-b border-outline-variant pb-8">
+        <h1 class="text-5xl md:text-7xl font-display font-black tracking-tighter text-on-surface mb-4 uppercase">
+          Engine <span class="text-primary neon-text-glow">Docs</span>
+        </h1>
+        <p class="text-on-surface-variant font-label tracking-widest uppercase">
+          Technical specifications for the neural API.
+        </p>
+      </div>
+
+      <div class="space-y-12">
+        
+        <div class="bg-surface-container border border-outline-variant p-8 relative">
+          <div class="absolute top-0 right-0 bg-primary/10 text-primary px-3 py-1 font-label text-xs uppercase tracking-widest border-l border-b border-primary/20">V 2.0</div>
+          <h2 class="text-2xl font-display font-bold text-on-surface mb-4 uppercase tracking-tighter">1. Authentication</h2>
+          <p class="text-on-surface-variant font-body mb-6">
+            All requests to the ENHANCE.AI neural engine require a Bearer token. Generate this from your dashboard.
+          </p>
+          <div class="bg-surface-container-lowest p-4 border border-outline-variant font-mono text-sm text-on-surface overflow-x-auto relative group">
+            <button class="absolute top-2 right-2 text-on-surface-variant hover:text-primary transition-colors opacity-0 group-hover:opacity-100">
+              <span class="material-symbols-outlined text-sm">content_copy</span>
+            </button>
+            <code>Authorization: Bearer enc_live_xxxxxxx</code>
+          </div>
+        </div>
+
+        <div class="bg-surface-container border border-outline-variant p-8 relative">
+          <h2 class="text-2xl font-display font-bold text-on-surface mb-4 uppercase tracking-tighter">2. Upscale Endpoint</h2>
+          <p class="text-on-surface-variant font-body mb-6">
+            Submit video frames or streams for spatial upscaling. Supports up to 8x multiplier.
+          </p>
+          <div class="bg-surface-container-lowest p-4 border border-outline-variant font-mono text-sm text-on-surface overflow-x-auto relative group mb-4">
+            <code>POST /v2/engine/upscale</code>
+          </div>
+          <h3 class="font-label text-xs uppercase tracking-widest text-primary mb-2 mt-6">Payload Example</h3>
+          <div class="bg-surface-container-lowest p-4 border border-outline-variant font-mono text-sm text-on-surface overflow-x-auto relative group">
+            <pre><code>{`{
+  "file_url": "s3://bucket/input.mp4",
+  "multiplier": 4,
+  "denoise_level": "high",
+  "webhook_url": "https://your-server.com/hook"
+}`}</code></pre>
+          </div>
+        </div>
+
+        <div class="bg-surface-container border border-outline-variant p-8 relative border-l-4 border-l-secondary">
+          <div class="flex items-center gap-3 mb-4">
+            <span class="material-symbols-outlined text-secondary">info</span>
+            <h2 class="text-2xl font-display font-bold text-on-surface uppercase tracking-tighter">Rate Limits</h2>
+          </div>
+          <p class="text-on-surface-variant font-body mb-0">
+            Standard tiers are limited to 120 frames per second throughput. For real-time 4K rendering (60fps), contact sales for a dedicated cluster.
+          </p>
+        </div>
+
+      </div>
+    </div>
+  </section>
+</Layout>

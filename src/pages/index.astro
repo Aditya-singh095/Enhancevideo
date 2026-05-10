@@ -1,0 +1,413 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="ENHANCE.AI — PIXELS, BUT BETTER">
+  
+  <!-- Hero Section -->
+  <section class="relative min-h-[921px] flex flex-col items-center justify-center px-6 text-center overflow-hidden" id="hero">
+    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-primary/10 rounded-full blur-[120px] pointer-events-none"></div>
+    <div class="relative z-10 max-w-4xl mx-auto">
+      <h1 class="text-6xl md:text-8xl font-display font-black tracking-tighter text-on-surface mb-4 neon-text-glow leading-none">
+        FRAMES,<br/><span class="text-primary">BUT BETTER.</span>
+      </h1>
+      <p class="text-on-surface-variant text-lg md:text-xl font-label tracking-tight max-w-2xl mx-auto mb-12">
+        The raw power of AI applied to your low-res artifacts. Reclaim lost detail with neural upscaling tailored for the future.
+      </p>
+
+      <!-- Centered Upload Box -->
+      <div id="upload-zone" class="group relative w-full max-w-2xl mx-auto aspect-video border-2 border-dashed border-primary/40 bg-surface-container/30 backdrop-blur-sm p-8 flex flex-col items-center justify-center cursor-pointer transition-all hover:border-primary hover:bg-primary/5 neon-border-glow">
+        <input type="file" id="image-upload" accept="video/*" hidden />
+        <span class="material-symbols-outlined text-primary text-6xl mb-4 group-hover:scale-110 transition-transform" data-icon="upload_file">upload_file</span>
+        <h3 class="font-display font-bold text-xl uppercase tracking-tighter text-on-surface mb-2">Drop your video here</h3>
+        <p class="font-label text-xs uppercase tracking-widest text-on-surface-variant">MP4, WEBM, MOV (MAX 500MB)</p>
+        
+        <!-- Decorative Corners -->
+        <div class="absolute -top-1 -left-1 w-4 h-4 border-t-2 border-l-2 border-primary"></div>
+        <div class="absolute -top-1 -right-1 w-4 h-4 border-t-2 border-r-2 border-primary"></div>
+        <div class="absolute -bottom-1 -left-1 w-4 h-4 border-b-2 border-l-2 border-primary"></div>
+        <div class="absolute -bottom-1 -right-1 w-4 h-4 border-b-2 border-r-2 border-primary"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Workspace / Editor Section (Hidden initially) -->
+  <section id="workspace" class="hidden py-24 px-6 bg-surface-container-lowest/50 border-y border-outline-variant relative">
+    <div class="max-w-7xl mx-auto">
+      <div class="grid lg:grid-cols-12 gap-12 items-start">
+        
+        <!-- Comparison Canvas -->
+        <div class="lg:col-span-8 relative group">
+          <div class="absolute -inset-4 bg-primary/20 blur-2xl rounded-xl opacity-50 group-hover:opacity-100 transition-opacity"></div>
+          <div class="relative overflow-hidden rounded-lg border border-primary/30 aspect-[4/3] flex bg-[#0a0a0a]" id="compare-wrap">
+            
+            <div class="absolute inset-0 z-10 flex items-center justify-center" id="compare-before" style="clip-path: inset(0 0 0 0);">
+              <canvas id="canvas-before" class="max-w-full max-h-full object-contain"></canvas>
+              <div class="absolute top-4 left-4 bg-background/80 px-2 py-1 text-[10px] font-label text-on-surface-variant uppercase tracking-widest">Original</div>
+            </div>
+
+            <div class="absolute inset-0 z-20 flex items-center justify-center" id="compare-after" style="clip-path: inset(0 50% 0 0);">
+              <canvas id="canvas-after" class="max-w-full max-h-full object-contain"></canvas>
+              <div class="absolute top-4 right-4 bg-primary/80 px-2 py-1 text-[10px] font-label text-on-primary uppercase tracking-widest">Enhanced</div>
+            </div>
+
+            <div id="compare-divider" class="absolute top-0 bottom-0 left-1/2 w-1 bg-primary z-30 -translate-x-1/2 cursor-ew-resize flex items-center justify-center pointer-events-none">
+              <div class="bg-primary p-1 rounded-full shadow-[0_0_10px_#ff2d78] pointer-events-auto cursor-ew-resize hover:scale-125 transition-transform">
+                <span class="material-symbols-outlined text-on-primary text-sm">unfold_more</span>
+              </div>
+            </div>
+
+            <!-- Loader -->
+            <div id="loading-overlay" class="hidden absolute inset-0 z-40 bg-surface-container-lowest/80 backdrop-blur-sm flex flex-col items-center justify-center">
+              <span class="material-symbols-outlined text-primary text-5xl animate-spin mb-4">refresh</span>
+              <p class="font-display font-bold text-primary tracking-widest uppercase neon-text-glow">Processing</p>
+            </div>
+
+            <!-- Audio Toggle -->
+            <button id="audio-toggle" class="absolute bottom-4 right-4 z-50 bg-background/80 text-on-surface hover:text-primary p-2 rounded-full backdrop-blur-sm border border-outline-variant hover:border-primary transition-all flex items-center justify-center group/audio">
+              <span class="material-symbols-outlined text-xl group-hover/audio:scale-110 transition-transform" id="audio-icon">volume_off</span>
+            </button>
+            
+          </div>
+        </div>
+
+        <!-- Controls Sidebar -->
+        <div class="lg:col-span-4 flex flex-col gap-8">
+          <div>
+            <span class="font-label text-secondary uppercase tracking-[0.3em] text-sm mb-4 block">Engine Parameters</span>
+            <h2 class="text-3xl font-display font-black text-on-surface mb-6 tracking-tighter">
+              MANUAL TUNE
+            </h2>
+            
+            <div class="flex flex-col gap-6">
+              <div class="w-full">
+                <div class="flex justify-between mb-2">
+                  <label class="font-label text-xs uppercase tracking-widest text-on-surface-variant">Brightness</label>
+                  <span id="brightness-val" class="font-label text-xs text-primary">100</span>
+                </div>
+                <input type="range" id="brightness" min="0" max="200" value="100" class="w-full accent-primary bg-surface-container-highest h-1 rounded-full appearance-none cursor-pointer"/>
+              </div>
+
+              <div class="w-full">
+                <div class="flex justify-between mb-2">
+                  <label class="font-label text-xs uppercase tracking-widest text-on-surface-variant">Contrast</label>
+                  <span id="contrast-val" class="font-label text-xs text-primary">100</span>
+                </div>
+                <input type="range" id="contrast" min="0" max="200" value="100" class="w-full accent-primary bg-surface-container-highest h-1 rounded-full appearance-none cursor-pointer"/>
+              </div>
+
+              <div class="w-full">
+                <div class="flex justify-between mb-2">
+                  <label class="font-label text-xs uppercase tracking-widest text-on-surface-variant">Temperature</label>
+                  <span id="temp-val" class="font-label text-xs text-primary">0</span>
+                </div>
+                <input type="range" id="temperature" min="-50" max="50" value="0" class="w-full accent-primary bg-surface-container-highest h-1 rounded-full appearance-none cursor-pointer"/>
+              </div>
+
+              <div class="w-full">
+                <div class="flex justify-between mb-2">
+                  <label class="font-label text-xs uppercase tracking-widest text-on-surface-variant">Saturation</label>
+                  <span id="sat-val" class="font-label text-xs text-primary">100</span>
+                </div>
+                <input type="range" id="saturation" min="0" max="200" value="100" class="w-full accent-primary bg-surface-container-highest h-1 rounded-full appearance-none cursor-pointer"/>
+              </div>
+              
+              <div class="w-full">
+                <div class="flex justify-between mb-2">
+                  <label class="font-label text-xs uppercase tracking-widest text-on-surface-variant">Sharpness</label>
+                  <span id="sharp-val" class="font-label text-xs text-primary">0</span>
+                </div>
+                <input type="range" id="sharpness" min="0" max="10" value="0" class="w-full accent-primary bg-surface-container-highest h-1 rounded-full appearance-none cursor-pointer"/>
+              </div>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-2 gap-4">
+            <button class="bg-surface-container border border-primary/20 text-on-surface hover:border-primary py-2 font-label text-xs uppercase tracking-widest transition-all preset-btn" data-preset="cool">Cool</button>
+            <button class="bg-surface-container border border-primary/20 text-on-surface hover:border-primary py-2 font-label text-xs uppercase tracking-widest transition-all preset-btn" data-preset="warm">Warm</button>
+            <button class="bg-surface-container border border-primary/20 text-on-surface hover:border-primary py-2 font-label text-xs uppercase tracking-widest transition-all preset-btn" data-preset="contrast">Punchy</button>
+            <button class="bg-surface-container border border-primary/20 text-on-surface hover:border-primary py-2 font-label text-xs uppercase tracking-widest transition-all preset-btn" data-preset="bw">Mono</button>
+            <button class="col-span-2 bg-surface-container border border-secondary/20 text-secondary hover:border-secondary py-2 font-label text-xs uppercase tracking-widest transition-all preset-btn" data-preset="reset">Reset</button>
+          </div>
+
+          <div class="flex flex-col gap-4 mt-4 border-t border-outline-variant pt-8">
+            <button id="ai-enhance-btn" class="bg-primary text-on-primary px-6 py-3 font-display font-bold uppercase tracking-tighter hover:scale-[1.02] active:scale-[0.98] transition-all neon-border-glow">
+              NEURAL UPSCALER
+            </button>
+            <button id="ai-colorize-btn" class="bg-surface-container border border-primary/30 text-primary px-6 py-3 font-display font-bold uppercase tracking-tighter hover:bg-primary/10 transition-all neon-border-glow">
+              AI COLOR RESTORE
+            </button>
+            <button id="download-btn" class="bg-secondary text-on-secondary px-6 py-3 font-display font-bold uppercase tracking-tighter hover:scale-[1.02] active:scale-[0.98] transition-all secondary-glow mt-4">
+              EXPORT VIDEO
+            </button>
+          </div>
+          
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features Grid -->
+  <section class="py-24 px-6">
+    <div class="max-w-7xl mx-auto text-center mb-16">
+      <h2 class="text-3xl md:text-4xl font-display font-black text-on-surface tracking-tighter uppercase">Engine Capabilities</h2>
+    </div>
+    <div class="grid md:grid-cols-3 gap-6 max-w-7xl mx-auto">
+      <div class="group bg-surface-container/50 border border-primary/20 p-8 transition-all hover:bg-surface-container-high hover:-translate-y-2 neon-border-glow">
+        <div class="text-primary font-display font-bold text-4xl mb-6 opacity-50 group-hover:opacity-100 transition-opacity">01</div>
+        <span class="material-symbols-outlined text-primary text-4xl mb-4" data-icon="speed">speed</span>
+        <h3 class="text-xl font-display font-bold text-on-surface mb-3 tracking-tighter uppercase">Upscaling</h3>
+        <p class="text-on-surface-variant text-sm font-body leading-relaxed">
+          Expand dimensions up to 800% without losing perceptual quality. Neural filling tech creates sharp edges and realistic textures.
+        </p>
+      </div>
+      <div class="group bg-surface-container/50 border border-secondary/20 p-8 transition-all hover:bg-surface-container-high hover:-translate-y-2 secondary-glow">
+        <div class="text-secondary font-display font-bold text-4xl mb-6 opacity-50 group-hover:opacity-100 transition-opacity">02</div>
+        <span class="material-symbols-outlined text-secondary text-4xl mb-4" data-icon="blur_off">blur_off</span>
+        <h3 class="text-xl font-display font-bold text-on-surface mb-3 tracking-tighter uppercase">Denoising</h3>
+        <p class="text-on-surface-variant text-sm font-body leading-relaxed">
+          Eliminate ISO grain and JPEG artifacts while preserving the fine details that matter. Clean output for professional printing.
+        </p>
+      </div>
+      <div class="group bg-surface-container/50 border border-tertiary/20 p-8 transition-all hover:bg-surface-container-high hover:-translate-y-2 shadow-[0_0_16px_rgba(255,224,74,0.1)]">
+        <div class="text-tertiary font-display font-bold text-4xl mb-6 opacity-50 group-hover:opacity-100 transition-opacity">03</div>
+        <span class="material-symbols-outlined text-tertiary text-4xl mb-4" data-icon="auto_fix_high">auto_fix_high</span>
+        <h3 class="text-xl font-display font-bold text-on-surface mb-3 tracking-tighter uppercase">Restoring</h3>
+        <p class="text-on-surface-variant text-sm font-body leading-relaxed">
+          Breathe life into scanned photos. Fix scratches, tears, and color degradation using our advanced historical synthesis model.
+        </p>
+      </div>
+    </div>
+  </section>
+
+</Layout>
+
+<script>
+  import anime from 'animejs';
+
+  // State
+  let currentVideo: HTMLVideoElement | null = null;
+  let renderLoopId: number | null = null;
+  let sliderPct = 50;
+  
+  const uploadZone = document.getElementById('upload-zone')!;
+  const fileInput = document.getElementById('image-upload') as HTMLInputElement;
+  const heroSection = document.getElementById('hero')!;
+  const workspace = document.getElementById('workspace')!;
+  
+  const compareWrap = document.getElementById('compare-wrap')!;
+  const canvasBefore = document.getElementById('canvas-before') as HTMLCanvasElement;
+  const canvasAfter = document.getElementById('canvas-after') as HTMLCanvasElement;
+  const ctxBefore = canvasBefore.getContext('2d')!;
+  const ctxAfter = canvasAfter.getContext('2d')!;
+  const compareAfterEl = document.getElementById('compare-after')!;
+  const dividerEl = document.getElementById('compare-divider')!;
+  const loadingEl = document.getElementById('loading-overlay')!;
+
+  const sliders = ['brightness', 'contrast', 'temperature', 'saturation', 'sharpness'];
+  const sEls: Record<string, HTMLInputElement> = {};
+  const vEls: Record<string, HTMLElement> = {};
+
+  sliders.forEach(id => {
+    sEls[id] = document.getElementById(id) as HTMLInputElement;
+    vEls[id] = document.getElementById(`${id === 'temperature' ? 'temp' : id === 'saturation' ? 'sat' : id === 'sharpness' ? 'sharp' : id}-val`)!;
+    sEls[id].addEventListener('input', applyFilters);
+  });
+
+  function setSlider(pct: number) {
+    sliderPct = Math.max(0, Math.min(100, pct));
+    compareAfterEl.style.clipPath = `inset(0 ${100 - sliderPct}% 0 0)`;
+    dividerEl.style.left = `${sliderPct}%`;
+  }
+
+  let dragging = false;
+  function onDragStart(e: MouseEvent | TouchEvent) { dragging = true; e.preventDefault(); }
+  function onDragMove(e: MouseEvent | TouchEvent) {
+    if (!dragging) return;
+    const rect = compareWrap.getBoundingClientRect();
+    const clientX = 'touches' in e ? e.touches[0].clientX : (e as MouseEvent).clientX;
+    setSlider(((clientX - rect.left) / rect.width) * 100);
+  }
+  function onDragEnd() { dragging = false; }
+
+  compareWrap.addEventListener('mousedown', onDragStart);
+  compareWrap.addEventListener('touchstart', onDragStart, { passive: false });
+  window.addEventListener('mousemove', onDragMove);
+  window.addEventListener('touchmove', onDragMove, { passive: false });
+  window.addEventListener('mouseup', onDragEnd);
+  window.addEventListener('touchend', onDragEnd);
+
+  // Audio Toggle
+  const audioToggle = document.getElementById('audio-toggle')!;
+  const audioIcon = document.getElementById('audio-icon')!;
+  
+  audioToggle.addEventListener('click', () => {
+    if (!currentVideo) return;
+    currentVideo.muted = !currentVideo.muted;
+    audioIcon.textContent = currentVideo.muted ? 'volume_off' : 'volume_up';
+    if (!currentVideo.muted) {
+        audioToggle.classList.add('text-primary', 'border-primary');
+        audioToggle.classList.remove('text-on-surface');
+    } else {
+        audioToggle.classList.remove('text-primary', 'border-primary');
+        audioToggle.classList.add('text-on-surface');
+    }
+  });
+
+  // Upload Handlers
+  uploadZone.addEventListener('click', () => fileInput.click());
+  uploadZone.addEventListener('dragover', e => { e.preventDefault(); uploadZone.classList.add('border-primary', 'bg-primary/5'); });
+  uploadZone.addEventListener('dragleave', () => uploadZone.classList.remove('border-primary', 'bg-primary/5'));
+  uploadZone.addEventListener('drop', e => {
+    e.preventDefault(); uploadZone.classList.remove('border-primary', 'bg-primary/5');
+    const f = e.dataTransfer?.files?.[0]; if (f) loadMedia(f);
+  });
+  fileInput.addEventListener('change', e => {
+    const f = (e.target as HTMLInputElement).files?.[0]; if (f) loadMedia(f);
+  });
+
+  function loadMedia(file: File) {
+    const url = URL.createObjectURL(file);
+    const vid = document.createElement('video');
+    vid.muted = true;
+    vid.loop = true;
+    vid.playsInline = true;
+    vid.src = url;
+    
+    // Reset audio toggle state for new video
+    audioIcon.textContent = 'volume_off';
+    audioToggle.classList.remove('text-primary', 'border-primary');
+    audioToggle.classList.add('text-on-surface');
+    
+    vid.onloadeddata = () => {
+      currentVideo = vid;
+      vid.play();
+        
+      // Hide hero, show workspace smoothly
+      anime({
+        targets: heroSection,
+        opacity: 0,
+        height: 0,
+        duration: 500,
+        easing: 'easeInOutQuad',
+        complete: () => {
+          heroSection.classList.add('hidden');
+          workspace.classList.remove('hidden');
+          workspace.style.opacity = '0';
+          anime({
+            targets: workspace,
+            opacity: 1,
+            duration: 800,
+            easing: 'easeOutExpo'
+          });
+        }
+      });
+
+      const mw = compareWrap.clientWidth || 800;
+      const mh = compareWrap.clientHeight || 600;
+      const r = Math.min(mw / vid.videoWidth, mh / vid.videoHeight, 1);
+      const w = Math.round(vid.videoWidth * r);
+      const h = Math.round(vid.videoHeight * r);
+
+      [canvasBefore, canvasAfter].forEach(c => { c.width = w; c.height = h; });
+
+      applyFilters();
+      setSlider(50);
+      
+      if (renderLoopId) cancelAnimationFrame(renderLoopId);
+      renderLoop();
+    };
+  }
+
+  function renderLoop() {
+    if (currentVideo && !currentVideo.paused && !currentVideo.ended) {
+      ctxBefore.clearRect(0, 0, canvasBefore.width, canvasBefore.height);
+      ctxBefore.drawImage(currentVideo, 0, 0, canvasBefore.width, canvasBefore.height);
+      
+      ctxAfter.clearRect(0, 0, canvasAfter.width, canvasAfter.height);
+      ctxAfter.drawImage(currentVideo, 0, 0, canvasAfter.width, canvasAfter.height);
+    }
+    renderLoopId = requestAnimationFrame(renderLoop);
+  }
+
+  function applyFilters() {
+    const b = +sEls.brightness.value, c = +sEls.contrast.value, t = +sEls.temperature.value;
+    const s = +sEls.saturation.value, sh = +sEls.sharpness.value;
+    
+    vEls.brightness.textContent = String(b); vEls.contrast.textContent = String(c);
+    vEls.temperature.textContent = String(t); vEls.saturation.textContent = String(s);
+    vEls.sharpness.textContent = String(sh);
+
+    let sepia = 0, hue = 0;
+    if (t > 0) sepia = t; else if (t < 0) hue = t * -2;
+    const sharpenVal = sh > 0 ? `contrast(${100 + sh * 5}%) saturate(${100 + sh * 3}%)` : '';
+    const filterStr = `brightness(${b}%) contrast(${c}%) saturate(${s}%) sepia(${sepia}%) hue-rotate(${hue}deg) ${sharpenVal}`;
+
+    canvasAfter.style.filter = filterStr;
+  }
+
+  // Presets and AI
+  const presets: Record<string, {b:number,c:number,t:number,s:number,sh:number}> = {
+    cool: {b:105,c:110,t:-20,s:110,sh:2},
+    warm: {b:95,c:115,t:30,s:120,sh:0},
+    contrast: {b:100,c:160,t:0,s:100,sh:4},
+    bw: {b:100,c:120,t:0,s:0,sh:1},
+    reset: {b:100,c:100,t:0,s:100,sh:0},
+  };
+
+  document.querySelectorAll('.preset-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const p = presets[(btn as HTMLElement).dataset.preset!];
+      if (!p) return;
+      const proxy = { b: Number(sEls.brightness.value), c: Number(sEls.contrast.value), t: Number(sEls.temperature.value), s: Number(sEls.saturation.value), sh: Number(sEls.sharpness.value) };
+      anime({
+        targets: proxy, b: p.b, c: p.c, t: p.t, s: p.s, sh: p.sh,
+        duration: 300, easing: 'linear',
+        update: () => {
+          sEls.brightness.value = proxy.b.toString(); sEls.contrast.value = proxy.c.toString();
+          sEls.temperature.value = proxy.t.toString(); sEls.saturation.value = proxy.s.toString();
+          sEls.sharpness.value = proxy.sh.toString(); applyFilters();
+        }
+      });
+    });
+  });
+
+  function runAI(params: any) {
+    if (!currentVideo) return;
+    loadingEl.classList.remove('hidden');
+    setTimeout(() => {
+      loadingEl.classList.add('hidden');
+      const proxy = { b: Number(sEls.brightness.value), c: Number(sEls.contrast.value), t: Number(sEls.temperature.value), s: Number(sEls.saturation.value), sh: Number(sEls.sharpness.value) };
+      anime({
+        targets: proxy, ...params,
+        duration: 300, easing: 'linear',
+        update: () => {
+          sEls.brightness.value = proxy.b.toString(); sEls.contrast.value = proxy.c.toString();
+          sEls.temperature.value = proxy.t.toString(); sEls.saturation.value = proxy.s.toString();
+          sEls.sharpness.value = proxy.sh.toString(); applyFilters();
+        }
+      });
+    }, 1500);
+  }
+
+  document.getElementById('ai-enhance-btn')!.addEventListener('click', () => runAI({b:108,c:120,s:115,t:0,sh:5}));
+  document.getElementById('ai-colorize-btn')!.addEventListener('click', () => runAI({b:102,c:110,s:130,t:25,sh:1}));
+
+  document.getElementById('download-btn')!.addEventListener('click', () => {
+    if (!currentVideo) return;
+    alert('Processing final video frames... This typically runs on a dedicated GPU backend.');
+  });
+</script>
+
+<style>
+  input[type=range]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    height: 20px;
+    width: 20px;
+    border-radius: 50%;
+    background: var(--color-primary);
+    cursor: ew-resize;
+    margin-top: -8px;
+    box-shadow: 0 0 10px rgba(255,45,120,0.5);
+  }
+</style>

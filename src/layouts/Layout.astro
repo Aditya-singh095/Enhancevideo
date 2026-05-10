@@ -1,0 +1,166 @@
+---
+import '../styles/global.css';
+
+interface Props {
+  title: string;
+}
+
+const { title } = Astro.props;
+const currentPath = Astro.url.pathname;
+
+const navLinks = [
+  { name: 'Tech', path: '/' },
+  { name: 'Gallery', path: '/gallery' },
+  { name: 'Pricing', path: '/pricing' },
+  { name: 'Docs', path: '/docs' }
+];
+---
+
+<!DOCTYPE html>
+<html lang="en" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="description" content="ENHANCE.AI — PIXELS, BUT BETTER" />
+    <meta name="viewport" content="width=device-width" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <meta name="generator" content={Astro.generator} />
+    
+    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;700;800&family=Inter:wght@400;500&family=Space+Grotesk:wght@400;700&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+    
+    <script is:inline>
+      const savedTheme = localStorage.getItem('claritone-theme') || 'theme-default';
+      const savedMode = localStorage.getItem('claritone-mode') || 'dark';
+      if (savedTheme !== 'theme-default') {
+        document.documentElement.classList.add(savedTheme);
+      }
+      if (savedMode === 'light') {
+        document.documentElement.classList.add('light');
+      }
+    </script>
+
+    <title>{title}</title>
+  </head>
+  <body class="font-body text-on-background selection:bg-primary selection:text-white">
+    <!-- Global Scanline FX -->
+    <div class="fixed inset-0 pointer-events-none z-[60] overflow-hidden">
+      <div class="scanline animate-scanline"></div>
+    </div>
+
+    <!-- TopNavBar -->
+    <header class="fixed top-0 w-full z-50 border-b border-primary/20 bg-surface-container-low/50 bg-background/90 backdrop-blur-xl shadow-[0_4px_20px_rgba(255,45,120,0.05)]">
+      <div class="flex justify-between items-center px-6 py-4 max-w-screen-2xl mx-auto">
+        <div class="text-2xl font-display font-black text-primary drop-shadow-[0_0_10px_#ff2d78] tracking-tighter uppercase">
+          ENHANCE.AI
+        </div>
+        <nav class="hidden md:flex items-center gap-8">
+          {navLinks.map(link => {
+            const isActive = currentPath === link.path || (link.path !== '/' && currentPath.startsWith(link.path));
+            return (
+              <a 
+                href={link.path} 
+                class={`font-label uppercase tracking-widest text-xs transition-all duration-300 ${isActive ? 'text-primary border-b-2 border-primary pb-1 drop-shadow-[0_0_8px_var(--app-primary)] font-bold' : 'text-on-surface-variant hover:text-secondary hover:scale-105'}`}
+              >
+                {link.name}
+              </a>
+            );
+          })}
+        </nav>
+        <div class="flex items-center gap-4">
+          <!-- Theme controls -->
+          <div class="hidden lg:flex items-center gap-2 mr-2 border-r border-outline-variant pr-4">
+            <button class="theme-btn w-4 h-4 rounded-full bg-[#ff2d78] hover:scale-125 transition-transform ring-2 ring-primary ring-offset-2 ring-offset-background" data-theme="theme-default" aria-label="Default Pink Theme"></button>
+            <button class="theme-btn w-4 h-4 rounded-full bg-[#0044ff] hover:scale-125 transition-transform" data-theme="theme-blue" aria-label="Blue Theme"></button>
+            <button class="theme-btn w-4 h-4 rounded-full bg-[#ff5500] hover:scale-125 transition-transform" data-theme="theme-orange" aria-label="Orange Theme"></button>
+            <button class="theme-btn w-4 h-4 rounded-full bg-[#00e676] hover:scale-125 transition-transform" data-theme="theme-green" aria-label="Green Theme"></button>
+            <button class="theme-btn w-4 h-4 rounded-full bg-[#ffea00] hover:scale-125 transition-transform" data-theme="theme-yellow" aria-label="Yellow Theme"></button>
+            <button class="theme-btn w-4 h-4 rounded-full bg-[#ff1744] hover:scale-125 transition-transform" data-theme="theme-red" aria-label="Red Theme"></button>
+            <button id="mode-toggle" class="ml-2 text-on-surface hover:text-primary transition-colors flex items-center justify-center">
+              <span class="material-symbols-outlined text-xl">light_mode</span>
+            </button>
+          </div>
+          <button class="bg-primary text-on-primary px-6 py-2 font-display font-bold uppercase tracking-tighter hover:scale-105 active:scale-95 transition-all neon-border-glow">
+            Get Started
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <main class="pt-24">
+      <slot />
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-surface-container-lowest border-t border-outline-variant w-full py-12 px-8 mt-24">
+      <div class="flex flex-col md:flex-row justify-between items-center gap-8 max-w-7xl mx-auto">
+        <div class="flex flex-col items-center md:items-start gap-4">
+          <div class="text-xl font-display font-bold text-primary drop-shadow-[0_0_5px_#ff2d78] tracking-tighter uppercase">
+            ENHANCE.AI
+          </div>
+          <p class="text-on-surface-variant font-label text-[10px] tracking-widest uppercase">
+            © 2026 ENHANCE.AI — NEURAL NETWORKS ONLINE
+          </p>
+        </div>
+        <div class="flex gap-8">
+          <a class="text-on-surface-variant font-label text-xs tracking-widest uppercase hover:text-secondary hover:drop-shadow-[0_0_8px_#00ffcc] transition-all" href="#">API</a>
+          <a class="text-on-surface-variant font-label text-xs tracking-widest uppercase hover:text-secondary hover:drop-shadow-[0_0_8px_#00ffcc] transition-all" href="#">Privacy</a>
+          <a class="text-on-surface-variant font-label text-xs tracking-widest uppercase hover:text-secondary hover:drop-shadow-[0_0_8px_#00ffcc] transition-all" href="#">Terminal</a>
+        </div>
+        <div class="flex gap-4">
+          <span class="material-symbols-outlined text-on-surface-variant cursor-pointer hover:text-primary transition-colors" data-icon="terminal">terminal</span>
+          <span class="material-symbols-outlined text-on-surface-variant cursor-pointer hover:text-primary transition-colors" data-icon="public">public</span>
+          <span class="material-symbols-outlined text-on-surface-variant cursor-pointer hover:text-primary transition-colors" data-icon="memory">memory</span>
+        </div>
+      </div>
+    </footer>
+    
+    <script is:inline>
+      const themeBtns = document.querySelectorAll('.theme-btn');
+      const root = document.documentElement;
+      const modeToggle = document.getElementById('mode-toggle');
+      
+      const currentTheme = localStorage.getItem('claritone-theme') || 'theme-default';
+      const currentMode = localStorage.getItem('claritone-mode') || 'dark';
+
+      // Update active ring on initial load
+      themeBtns.forEach(b => {
+         if(b.getAttribute('data-theme') === currentTheme) {
+             b.classList.add('ring-2', 'ring-primary', 'ring-offset-2', 'ring-offset-background');
+         } else {
+             b.classList.remove('ring-2', 'ring-primary', 'ring-offset-2', 'ring-offset-background');
+         }
+      });
+      if (modeToggle && currentMode === 'light') {
+          modeToggle.querySelector('span').textContent = 'dark_mode';
+      }
+      
+      themeBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          root.classList.remove('theme-blue', 'theme-orange', 'theme-green', 'theme-yellow', 'theme-red');
+          const theme = btn.getAttribute('data-theme');
+          if (theme && theme !== 'theme-default') {
+            root.classList.add(theme);
+          }
+          localStorage.setItem('claritone-theme', theme || 'theme-default');
+          
+          themeBtns.forEach(b => b.classList.remove('ring-2', 'ring-primary', 'ring-offset-2', 'ring-offset-background'));
+          btn.classList.add('ring-2', 'ring-primary', 'ring-offset-2', 'ring-offset-background');
+        });
+      });
+
+      if (modeToggle) {
+        modeToggle.addEventListener('click', () => {
+          root.classList.toggle('light');
+          const icon = modeToggle.querySelector('span');
+          if (root.classList.contains('light')) {
+            icon.textContent = 'dark_mode';
+            localStorage.setItem('claritone-mode', 'light');
+          } else {
+            icon.textContent = 'light_mode';
+            localStorage.setItem('claritone-mode', 'dark');
+          }
+        });
+      }
+    </script>
+  </body>
+</html>

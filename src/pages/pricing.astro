@@ -1,0 +1,107 @@
+---
+import Layout from '../layouts/Layout.astro';
+---
+
+<Layout title="Pricing | ENHANCE.AI">
+  <section class="min-h-screen py-32 px-6">
+    <div class="max-w-7xl mx-auto">
+      
+      <div class="mb-16 border-b border-outline-variant pb-8 text-center max-w-3xl mx-auto">
+        <h1 class="text-5xl md:text-7xl font-display font-black tracking-tighter text-on-surface mb-4 uppercase">
+          Neural <span class="text-tertiary shadow-[0_0_8px_currentColor]">Compute</span>
+        </h1>
+        <p class="text-on-surface-variant font-label tracking-widest uppercase">
+          Transparent pricing for GPU-accelerated frame reconstruction.
+        </p>
+      </div>
+
+      <div class="grid lg:grid-cols-3 gap-8 items-center">
+        
+        <!-- Tier 1 -->
+        <div class="bg-surface-container border border-outline-variant p-8 hover:-translate-y-2 transition-transform">
+          <div class="font-label text-xs uppercase tracking-widest text-on-surface-variant mb-2">Hobby Node</div>
+          <div class="text-5xl font-display font-black text-on-surface mb-6 tracking-tighter">$19<span class="text-xl text-on-surface-variant">/mo</span></div>
+          <ul class="space-y-4 mb-8">
+            <li class="flex items-center gap-3 text-on-surface font-body text-sm">
+              <span class="material-symbols-outlined text-primary text-sm">check</span>
+              1080p Max Resolution
+            </li>
+            <li class="flex items-center gap-3 text-on-surface font-body text-sm">
+              <span class="material-symbols-outlined text-primary text-sm">check</span>
+              30 FPS Processing
+            </li>
+            <li class="flex items-center gap-3 text-on-surface font-body text-sm">
+              <span class="material-symbols-outlined text-primary text-sm">check</span>
+              Shared GPU Cluster
+            </li>
+            <li class="flex items-center gap-3 text-on-surface-variant font-body text-sm opacity-50">
+              <span class="material-symbols-outlined text-sm">close</span>
+              No API Access
+            </li>
+          </ul>
+          <button class="w-full bg-surface-container-highest border border-outline-variant text-on-surface px-6 py-3 font-display font-bold uppercase tracking-tighter hover:border-primary hover:text-primary transition-all">
+            Deploy Node
+          </button>
+        </div>
+
+        <!-- Tier 2 (Pro) -->
+        <div class="bg-surface-container border-2 border-primary p-10 relative transform lg:scale-105 neon-border-glow bg-surface-container-high/50">
+          <div class="absolute -top-4 left-1/2 -translate-x-1/2 bg-primary text-on-primary px-4 py-1 font-label text-xs uppercase tracking-widest font-bold">
+            Most Popular
+          </div>
+          <div class="font-label text-xs uppercase tracking-widest text-primary mb-2">Pro Node</div>
+          <div class="text-6xl font-display font-black text-on-surface mb-6 tracking-tighter">$89<span class="text-xl text-on-surface-variant">/mo</span></div>
+          <ul class="space-y-4 mb-8">
+            <li class="flex items-center gap-3 text-on-surface font-body text-sm">
+              <span class="material-symbols-outlined text-primary text-sm">check</span>
+              4K Max Resolution
+            </li>
+            <li class="flex items-center gap-3 text-on-surface font-body text-sm">
+              <span class="material-symbols-outlined text-primary text-sm">check</span>
+              60 FPS Processing
+            </li>
+            <li class="flex items-center gap-3 text-on-surface font-body text-sm">
+              <span class="material-symbols-outlined text-primary text-sm">check</span>
+              Dedicated T4 GPU
+            </li>
+            <li class="flex items-center gap-3 text-on-surface font-body text-sm">
+              <span class="material-symbols-outlined text-primary text-sm">check</span>
+              API Access (1M calls)
+            </li>
+          </ul>
+          <button class="w-full bg-primary text-on-primary px-6 py-4 font-display font-bold uppercase tracking-tighter hover:scale-[1.02] active:scale-[0.98] transition-all">
+            Initialize Core
+          </button>
+        </div>
+
+        <!-- Tier 3 -->
+        <div class="bg-surface-container border border-outline-variant p-8 hover:-translate-y-2 transition-transform">
+          <div class="font-label text-xs uppercase tracking-widest text-on-surface-variant mb-2">Enterprise Cluster</div>
+          <div class="text-5xl font-display font-black text-on-surface mb-6 tracking-tighter">Custom</div>
+          <ul class="space-y-4 mb-8">
+            <li class="flex items-center gap-3 text-on-surface font-body text-sm">
+              <span class="material-symbols-outlined text-primary text-sm">check</span>
+              8K Max Resolution
+            </li>
+            <li class="flex items-center gap-3 text-on-surface font-body text-sm">
+              <span class="material-symbols-outlined text-primary text-sm">check</span>
+              120 FPS Processing
+            </li>
+            <li class="flex items-center gap-3 text-on-surface font-body text-sm">
+              <span class="material-symbols-outlined text-primary text-sm">check</span>
+              A100 GPU Cluster
+            </li>
+            <li class="flex items-center gap-3 text-on-surface font-body text-sm">
+              <span class="material-symbols-outlined text-primary text-sm">check</span>
+              Unlimited API Access
+            </li>
+          </ul>
+          <button class="w-full bg-surface-container-highest border border-outline-variant text-on-surface px-6 py-3 font-display font-bold uppercase tracking-tighter hover:border-secondary hover:text-secondary transition-all">
+            Contact Sales
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </section>
+</Layout>
